@@ -4,6 +4,12 @@ use serde::{Deserialize, Serialize};
 use serde_json::value::RawValue;
 use std::collections::HashMap;
 
+#[derive(Debug, Deserialize)]
+pub struct ClusterConfigReceivedEvent {
+    #[serde(rename = "device")]
+    pub device_id: DeviceID,
+}
+
 //FIXME: complete
 #[derive(Debug, Deserialize)]
 pub struct ConfigSavedEvent {
@@ -85,12 +91,26 @@ pub struct FolderError {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct FolderPausedEvent {
+    pub id: String,
+    pub label: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct FolderRejectedEvent {
     #[serde(rename = "device")]
     pub device_id: DeviceID,
     #[serde(rename = "folder")]
     pub folder_id: String,
     #[serde(rename = "folderLabel")]
+    pub folder_label: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct FolderResumedEvent {
+    #[serde(rename = "id")]
+    pub folder_id: String,
+    #[serde(rename = "label")]
     pub folder_label: String,
 }
 
@@ -143,6 +163,14 @@ pub struct FolderSummaryData {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct FolderWatchStateChangedEvent {
+    #[serde(rename = "folder")]
+    pub folder_id: String,
+    pub from: Option<String>,
+    pub to: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
 #[serde(rename_all(deserialize = "lowercase"))]
 pub enum ItemAction {
     Update,
@@ -171,6 +199,7 @@ pub struct ItemStartedEvent {
     pub action: ItemAction,
 }
 
+// FIXME: Finish
 #[derive(Debug, Deserialize)]
 pub struct ListenAddressesChangedEvent {}
 
@@ -201,6 +230,15 @@ pub struct LoginAttemptEvent {
     pub username: String,
     pub success: bool,
 }
+
+// FIXME: Finish
+#[derive(Debug, Deserialize)]
+pub struct PendingDevicesChangedEvent {}
+
+// FIXME: Finish
+#[derive(Debug, Deserialize)]
+pub struct PendingFoldersChangedEvent {}
+
 #[derive(Debug, Deserialize)]
 pub struct RemoteChangeDetectedEvent {
     pub action: String,
@@ -262,6 +300,7 @@ pub struct StateChangedEvent {
 
 #[derive(Debug, Deserialize)]
 pub enum EventData {
+    ClusterConfigReceived(ClusterConfigReceivedEvent),
     ConfigSaved(ConfigSavedEvent),
     DeviceConnected(DeviceConnectedEvent),
     DeviceDisconnected(DeviceDisconnectedEvent),
@@ -270,17 +309,23 @@ pub enum EventData {
     DeviceRejected(DeviceRejectedEvent),
     DeviceResumed(DeviceResumedEvent),
     DownloadProgress(HashMap<FolderName, Folder>),
+    Failure(String),
     FolderCompletion(FolderCompletionEvent),
     FolderErrors(FolderErrorsEvent),
+    FolderPaused(FolderPausedEvent),
     FolderRejected(FolderRejectedEvent),
+    FolderResumed(FolderResumedEvent),
     FolderScanProgress(FolderScanProgressEvent),
     FolderSummary(Box<FolderSummaryEvent>),
+    FolderWatchStateChanged(FolderWatchStateChangedEvent),
     ItemFinished(ItemFinishedEvent),
     ItemStarted(ItemStartedEvent),
     ListenAddressesChanged(ListenAddressesChangedEvent),
     LocalChangeDetected(LocalChangeDetectedEvent),
     LocalIndexUpdated(LocalIndexUpdatedEvent),
     LoginAttempt(LoginAttemptEvent),
+    PendingDevicesChanged(),
+    PendingFoldersChanged(),
     RemoteChangeDetected(RemoteChangeDetectedEvent),
     RemoteDownloadProgress(RemoteDownloadProgressEvent),
     RemoteIndexUpdated(RemoteIndexUpdatedEvent),
@@ -302,6 +347,7 @@ pub(super) struct RawEvent {
 
 #[derive(Debug, Copy, Clone, PartialEq, Deserialize, Serialize)]
 pub enum EventType {
+    ClusterConfigReceived,
     ConfigSaved,
     DeviceConnected,
     DeviceDisconnected,
@@ -310,17 +356,23 @@ pub enum EventType {
     DeviceRejected,
     DeviceResumed,
     DownloadProgress,
+    Failure,
     FolderCompletion,
     FolderErrors,
+    FolderPaused,
     FolderRejected,
+    FolderResumed,
     FolderScanProgress,
     FolderSummary,
+    FolderWatchStateChanged,
     ItemFinished,
     ItemStarted,
     ListenAddressesChanged,
     LocalChangeDetected,
     LocalIndexUpdated,
     LoginAttempt,
+    PendingDevicesChanged,
+    PendingFoldersChanged,
     RemoteChangeDetected,
     RemoteDownloadProgress,
     RemoteIndexUpdated,
@@ -356,6 +408,7 @@ impl core::convert::TryFrom<RawEvent> for Event {
             global_id,
             time,
             data: match event_type {
+                EventType::ClusterConfigReceived => ClusterConfigReceived(serde_json::from_str(data)?),
                 EventType::ConfigSaved => ConfigSaved(serde_json::from_str(data)?),
                 EventType::DeviceConnected => DeviceConnected(serde_json::from_str(data)?),
                 EventType::DeviceDisconnected => DeviceDisconnected(serde_json::from_str(data)?),
@@ -364,11 +417,15 @@ impl core::convert::TryFrom<RawEvent> for Event {
                 EventType::DeviceRejected => DeviceRejected(serde_json::from_str(data)?),
                 EventType::DeviceResumed => DeviceResumed(serde_json::from_str(data)?),
                 EventType::DownloadProgress => DownloadProgress(serde_json::from_str(data)?),
+                EventType::Failure => Failure(serde_json::from_str(data)?),
                 EventType::FolderCompletion => FolderCompletion(serde_json::from_str(data)?),
                 EventType::FolderErrors => FolderErrors(serde_json::from_str(data)?),
+                EventType::FolderPaused => FolderPaused(serde_json::from_str(data)?),
                 EventType::FolderRejected => FolderRejected(serde_json::from_str(data)?),
+                EventType::FolderResumed => FolderResumed(serde_json::from_str(data)?),
                 EventType::FolderScanProgress => FolderScanProgress(serde_json::from_str(data)?),
                 EventType::FolderSummary => FolderSummary(serde_json::from_str(data)?),
+                EventType::FolderWatchStateChanged => FolderWatchStateChanged(serde_json::from_str(data)?),
                 EventType::ItemFinished => ItemFinished(serde_json::from_str(data)?),
                 EventType::ItemStarted => ItemStarted(serde_json::from_str(data)?),
                 EventType::ListenAddressesChanged => {
@@ -377,6 +434,8 @@ impl core::convert::TryFrom<RawEvent> for Event {
                 EventType::LocalChangeDetected => LocalChangeDetected(serde_json::from_str(data)?),
                 EventType::LocalIndexUpdated => LocalIndexUpdated(serde_json::from_str(data)?),
                 EventType::LoginAttempt => LoginAttempt(serde_json::from_str(data)?),
+                EventType::PendingDevicesChanged => PendingDevicesChanged(),
+                EventType::PendingFoldersChanged => PendingFoldersChanged(),
                 EventType::RemoteChangeDetected => {
                     RemoteChangeDetected(serde_json::from_str(data)?)
                 }
