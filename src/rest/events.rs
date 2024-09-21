@@ -7,7 +7,6 @@ use std::collections::HashMap;
 //FIXME: complete
 #[derive(Debug, Deserialize)]
 pub struct ConfigSavedEvent {
-    #[serde(rename = "Version")]
     pub version: u64,
 }
 
@@ -187,8 +186,10 @@ pub struct LocalIndexUpdatedEvent {
     #[serde(rename = "folder")]
     pub folder_id: String,
     pub items: u64,
-    pub version: u64,
     pub filenames: Vec<FileName>,
+    pub sequence: u64,
+    #[serde(rename = "version")]
+    pub deprecated_version: u64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -224,13 +225,10 @@ pub struct RemoteIndexUpdatedEvent {
     #[serde(rename = "folder")]
     pub folder_id: String,
     pub items: u64,
-    pub version: u64,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct StartingEvent {
-    #[serde(rename = "myID")]
-    pub device_id: DeviceID,
     pub home: String,
 }
 
@@ -254,7 +252,6 @@ pub struct StateChangedEvent {
     pub duration: Option<f64>,
     pub from: FolderState,
     pub to: FolderState,
-    pub error: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
