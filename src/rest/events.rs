@@ -13,7 +13,8 @@ pub struct ConfigSavedEvent {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all(deserialize = "camelCase"))]
 pub struct DeviceConnectedEvent {
-    pub addr: String,
+    #[serde(rename = "addr")]
+    pub address: String,
     #[serde(rename = "id")]
     pub device_id: DeviceID,
     pub device_name: String,
@@ -104,7 +105,8 @@ pub struct FolderScanProgressEvent {
 
 #[derive(Debug, Deserialize)]
 pub struct FolderSummaryEvent {
-    pub folder: String,
+    #[serde(rename = "folder")]
+    pub folder_id: String,
     pub summary: FolderSummaryData,
 }
 
@@ -135,8 +137,8 @@ pub struct FolderSummaryData {
     pub need_total_items: u64,
     pub pull_errors: u64,
     pub sequence: u64,
-    pub state: String,
-    pub state_changed: String, //FIXME: use enum
+    pub state: String, //FIXME: Use enum here
+    pub state_changed: String,
     pub version: u64,
 }
 
@@ -151,7 +153,8 @@ pub enum ItemAction {
 #[derive(Debug, Deserialize)]
 pub struct ItemFinishedEvent {
     pub item: String,
-    pub folder: String,
+    #[serde(rename = "folder")]
+    pub folder_id: String,
     pub error: Option<String>,
     #[serde(rename = "type")]
     pub item_type: String, //FIXME: use enum
@@ -161,7 +164,8 @@ pub struct ItemFinishedEvent {
 #[derive(Debug, Deserialize)]
 pub struct ItemStartedEvent {
     pub item: String,
-    pub folder: String,
+    #[serde(rename = "folder")]
+    pub folder_id: String,
     #[serde(rename = "type")]
     pub item_type: String, //FIXME: use enum
     pub action: ItemAction,
@@ -214,7 +218,8 @@ pub struct RemoteChangeDetectedEvent {
 pub struct RemoteDownloadProgressEvent {
     #[serde(rename = "device")]
     pub device_id: DeviceID,
-    pub folder: String,
+    #[serde(rename = "folder")]
+    pub folder_id: String,
     pub state: HashMap<FileName, u64>,
 }
 
@@ -229,7 +234,8 @@ pub struct RemoteIndexUpdatedEvent {
 
 #[derive(Debug, Deserialize)]
 pub struct StartingEvent {
-    pub home: String,
+    #[serde(rename = "home")]
+    pub home_path: String,
 }
 
 #[derive(Debug, Deserialize)]
