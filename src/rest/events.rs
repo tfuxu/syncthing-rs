@@ -50,6 +50,7 @@ pub struct DevicePausedEvent {
     pub device_id: DeviceID,
 }
 
+/// NOTE: This event is deprecated; You should use a replacement PendingDevicesChanged event instead.
 #[derive(Debug, Deserialize)]
 pub struct DeviceRejectedEvent {
     #[serde(rename = "device")]
@@ -67,15 +68,18 @@ pub struct DeviceResumedEvent {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all(deserialize = "camelCase"))]
 pub struct FolderCompletionEvent {
+    pub completion: f64,
     #[serde(rename = "device")]
     pub device_id: DeviceID,
     #[serde(rename = "folder")]
     pub folder_id: String,
-    pub completion: f64,
     pub global_bytes: u64,
+    pub global_items: u64,
     pub need_bytes: u64,
     pub need_deletes: u64,
     pub need_items: u64,
+    pub remote_state: String, //FIXME: Use enum here
+    pub sequence: u64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -130,9 +134,12 @@ pub struct FolderSummaryEvent {
     pub summary: FolderSummaryData,
 }
 
+// FIXME: Add `remoteSequence`
 #[derive(Debug, Deserialize)]
 #[serde(rename_all(deserialize = "camelCase"))]
 pub struct FolderSummaryData {
+    pub error: String,
+    pub errors: u64,
     pub global_bytes: u64,
     pub global_deleted: u64,
     pub global_directories: u64,
@@ -156,10 +163,17 @@ pub struct FolderSummaryData {
     pub need_symlinks: u64,
     pub need_total_items: u64,
     pub pull_errors: u64,
+    pub receive_only_changed_bytes: u64,
+    pub receive_only_changed_deletes: u64,
+    pub receive_only_changed_directories: u64,
+    pub receive_only_changed_files: u64,
+    pub receive_only_changed_symlinks: u64,
+    pub receive_only_total_items: u64,
     pub sequence: u64,
     pub state: String, //FIXME: Use enum here
     pub state_changed: String,
     pub version: u64,
+    pub watch_error: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -203,17 +217,21 @@ pub struct ItemStartedEvent {
 #[derive(Debug, Deserialize)]
 pub struct ListenAddressesChangedEvent {}
 
+/// NOTE: `folderID` field is deprecated. Use `folder` field
 #[derive(Debug, Deserialize)]
 pub struct LocalChangeDetectedEvent {
     pub action: String, //FIXME: use enum
-    #[serde(rename = "folderID")]
+    #[serde(rename = "folder")]
     pub folder_id: String,
+    #[serde(rename = "folderID")]
+    pub deprecated_folder_id: String,
     pub label: String,
-    path: String,
+    pub path: String,
     #[serde(rename = "type")]
     pub item_type: String, //FIXME: use enum
 }
 
+/// NOTE: `version` field is deprecated. Use `sequence` field
 #[derive(Debug, Deserialize)]
 pub struct LocalIndexUpdatedEvent {
     #[serde(rename = "folder")]
@@ -227,6 +245,8 @@ pub struct LocalIndexUpdatedEvent {
 
 #[derive(Debug, Deserialize)]
 pub struct LoginAttemptEvent {
+    #[serde(rename = "remoteAddress")]
+    pub remote_address: String,
     pub username: String,
     pub success: bool,
 }
@@ -241,13 +261,15 @@ pub struct PendingFoldersChangedEvent {}
 
 #[derive(Debug, Deserialize)]
 pub struct RemoteChangeDetectedEvent {
-    pub action: String,
-    #[serde(rename = "folderID")]
-    pub folder_id: String,
-    pub label: String,
-    pub path: String,
     #[serde(rename = "type")]
     pub item_type: String, //FIXME: use enum
+    pub action: String, //FIXME: use enum
+    #[serde(rename = "folder")]
+    pub folder_id: String,
+    #[serde(rename = "folderID")]
+    pub deprecated_folder_id: String,
+    pub path: String,
+    pub label: String,
     #[serde(rename = "modifiedBy")]
     pub modified_by: String,
 }
@@ -276,6 +298,7 @@ pub struct StartingEvent {
     pub home_path: String,
 }
 
+// TODO: Event API states there are only 4 states. Check https://docs.syncthing.net/events/statechanged.html and source code
 #[derive(Debug, Deserialize)]
 #[serde(rename_all(deserialize = "kebab-case"))]
 pub enum FolderState {
