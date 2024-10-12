@@ -10,7 +10,7 @@ pub mod version;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-pub struct Entry {
+pub struct LogEntry {
     pub when: String,
     pub message: String,
 }

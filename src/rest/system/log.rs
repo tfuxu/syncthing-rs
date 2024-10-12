@@ -1,7 +1,7 @@
-use crate::rest::system::Entry;
+use crate::rest::system::LogEntry;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Log {
-    pub messages: Vec<Entry>,
+    pub messages: Vec<LogEntry>,
 }
