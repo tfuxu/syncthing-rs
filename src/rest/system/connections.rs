@@ -21,9 +21,13 @@ pub struct DeviceStats {
     pub connected: bool,
     #[serde(rename = "inBytesTotal")]
     pub in_bytes_total: u64,
+    #[serde(rename = "isLocal")]
+    pub is_local: bool,
     #[serde(rename = "outBytesTotal")]
     pub out_bytes_total: u64,
     pub paused: bool,
+    #[serde(rename = "startedAt")]
+    pub started_at: String,
     #[serde(rename = "type")]
     pub device_type: String,
 }
