@@ -1,5 +1,5 @@
+use tokio::stream::StreamExt;
 use crate::{Client, Fallible};
-use futures_util::stream::StreamExt;
 
 static API_KEY: &str = include_str!("../api.key");
 
@@ -71,8 +71,10 @@ async fn get_events() -> Fallible<()> {
 async fn event_stream() -> Fallible<()> {
     let client = Client::new(API_KEY);
     let mut stream = client.subscribe_to_all();
+
     let mut last = 0;
     let mut i = 0;
+
     while let Some(event) = stream.next().await {
         if i > 3 {
             return Ok(());
@@ -86,5 +88,6 @@ async fn event_stream() -> Fallible<()> {
             last = event.id;
         }
     }
+
     Ok(())
 }
