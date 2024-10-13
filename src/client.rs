@@ -1,6 +1,7 @@
 use crate::event_stream::EventStream;
 use crate::rest::events::{Event, EventType};
 use crate::rest::system;
+use crate::rest::noauth;
 use crate::routes::*;
 use crate::utils::QueryChars;
 use crate::Fallible;
@@ -177,5 +178,9 @@ impl Client {
 
     pub async fn get_system_version(&self) -> Fallible<system::version::Version> {
         self.request(Method::GET, SYSTEM_VERSION_PATH).await
+    }
+
+    pub async fn get_noauth_health(&self) -> Fallible<noauth::HealthInfo> {
+        self.request(Method::GET, NOAUTH_HEALTH_PATH).await
     }
 }

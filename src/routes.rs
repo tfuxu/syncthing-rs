@@ -7,3 +7,5 @@ pub static SYSTEM_ERROR_PATH: &str = "/rest/system/error";
 pub static SYSTEM_PING_PATH: &str = "/rest/system/ping";
 pub static SYSTEM_UPGRADE_PATH: &str = "/rest/system/upgrade";
 pub static SYSTEM_VERSION_PATH: &str = "/rest/system/version";
+
+pub static NOAUTH_HEALTH_PATH: &str = "/rest/noauth/health";

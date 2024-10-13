@@ -61,6 +61,13 @@ async fn get_system_version() -> Fallible<()> {
 }
 
 #[tokio::test]
+async fn get_noauth_health() -> Fallible<()> {
+    let client = Client::new(API_KEY);
+    client.get_noauth_health().await?;
+    Ok(())
+}
+
+#[tokio::test]
 async fn get_events() -> Fallible<()> {
     let client = Client::new(API_KEY);
     client.get_all_events(None, None).await?;

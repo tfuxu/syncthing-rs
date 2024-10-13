@@ -1,11 +1,12 @@
 pub mod events;
+pub mod noauth;
 pub mod system;
 
 use serde::Deserialize;
 use std::collections::HashMap;
 
 //TODO: ip type for address, DeviceID/FolderID type with deser
-//FIXME: check folder == folderLable inconsistency
+//FIXME: check folder == folderLabel inconsistency
 
 type FileName = String;
 //TODO: use separate type?
