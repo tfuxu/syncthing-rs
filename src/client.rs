@@ -1,10 +1,3 @@
-use crate::event_stream::EventStream;
-use crate::rest::events::{Event, EventType};
-use crate::rest::system;
-use crate::rest::noauth;
-use crate::routes::*;
-use crate::utils::QueryChars;
-use crate::Fallible;
 use anyhow::bail;
 use bytes::buf::BufExt as _;
 use bytes::Buf;
@@ -14,6 +7,14 @@ use http::uri::{Authority, Parts as UriParts, PathAndQuery, Scheme, Uri};
 use hyper::client::HttpConnector;
 use hyper::{Client as HyperClient, Method};
 use serde::de::DeserializeOwned as Deserialize;
+
+use crate::event_stream::EventStream;
+use crate::rest::events::{Event, EventType};
+use crate::rest::noauth;
+use crate::rest::system;
+use crate::routes::*;
+use crate::utils::QueryChars;
+use crate::Fallible;
 
 static API_HEADER_KEY: &str = "X-API-Key";
 static API_DEFAULT_AUTHORITY: &str = "127.0.0.1:8384";
@@ -71,19 +72,24 @@ impl Client {
         path_and_query: T,
     ) -> Fallible<D> {
         let mut uri_parts = UriParts::default();
+
         uri_parts.authority = Some(self.authority.clone());
         uri_parts.scheme = Some(Scheme::HTTP);
         uri_parts.path_and_query = Some(PathAndQuery::from_maybe_shared(path_and_query)?);
+
         let uri = Uri::from_parts(uri_parts)?;
         let mut request = Request::new(Default::default());
+
         *request.uri_mut() = uri;
         *request.method_mut() = method;
         request
             .headers_mut()
             .insert(API_HEADER_KEY, HeaderValue::from_str(&self.api_key)?);
+
         let resp = self.client.request(request).await?;
         let status_code = resp.status().as_u16();
         let body = hyper::body::aggregate(resp).await?;
+
         if status_code < 200 || status_code > 299 {
             bail!(
                 "got http status code '{}' with following msg:\n {}",
@@ -113,6 +119,7 @@ impl Client {
         let mut path_and_query = EVENTS_PATH.to_owned();
         let events = events.as_ref();
         let mut query_chars = QueryChars::new();
+
         if !events.is_empty() {
             let events = serde_json::to_string(&events)?
                 .chars()
@@ -123,20 +130,24 @@ impl Client {
                     _ => true,
                 })
                 .collect::<String>();
+
             path_and_query.push(query_chars.next_char());
             path_and_query.push_str("events=");
             path_and_query.push_str(events.as_ref());
         }
+
         if let Some(since) = since {
             path_and_query.push(query_chars.next_char());
             path_and_query.push_str("since=");
             path_and_query.push_str(since.to_string().as_ref());
         }
+
         if let Some(limit) = limit {
             path_and_query.push(query_chars.next_char());
             path_and_query.push_str("limit=");
             path_and_query.push_str(limit.to_string().as_ref());
         }
+
         self.request(Method::GET, path_and_query).await
     }
 
@@ -163,6 +174,8 @@ impl Client {
     pub async fn get_system_log(&self) -> Fallible<system::log::Log> {
         self.request(Method::GET, SYSTEM_LOG_PATH).await
     }
+
+    // TODO: Implement method for getting `log.txt` file
 
     pub async fn get_system_error(&self) -> Fallible<system::error::Error> {
         self.request(Method::GET, SYSTEM_ERROR_PATH).await

@@ -1,8 +1,9 @@
-use crate::rest::DeviceID;
-use crate::rest::{FileName, Folder, FolderName};
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 use serde_json::value::RawValue;
-use std::collections::HashMap;
+
+use crate::rest::{DeviceID, FileName, FolderName, Folder};
 
 #[derive(Debug, Deserialize)]
 pub struct ClusterConfigReceivedEvent {
