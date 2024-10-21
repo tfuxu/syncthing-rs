@@ -1,9 +1,7 @@
-# syncthing &emsp; [![Action Badge]][actions] [![Version Badge]][crates.io] [![License Badge]][license]
+# syncthing &emsp; [![Version Badge]][crates.io] [![License Badge]][license]
 
 [Version Badge]: https://img.shields.io/crates/v/syncthing.svg
 [crates.io]: https://crates.io/crates/syncthing
-[Action Badge]: https://github.com/JayceFayne/syncthing-rs/workflows/Rust/badge.svg
-[actions]: https://github.com/JayceFayne/syncthing-rs/actions
 [License Badge]: https://img.shields.io/crates/l/syncthing.svg
 [license]: https://github.com/JayceFayne/syncthing-rs/blob/master/LICENSE.md
 
