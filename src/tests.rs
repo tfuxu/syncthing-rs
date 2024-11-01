@@ -1,4 +1,4 @@
-use tokio::stream::StreamExt;
+use futures_util::stream::StreamExt;
 use crate::{Client, Fallible};
 
 static API_KEY: &str = include_str!("../api.key");
