@@ -1,9 +1,8 @@
 use anyhow::bail;
-use bytes::buf::BufExt as _;
-use bytes::Buf;
 use http::header::HeaderValue;
 use http::request::Request;
 use http::uri::{Authority, Parts as UriParts, PathAndQuery, Scheme, Uri};
+use hyper::body::Buf;
 use hyper::client::HttpConnector;
 use hyper::{Client as HyperClient, Method};
 use serde::de::DeserializeOwned as Deserialize;
@@ -94,7 +93,7 @@ impl Client {
             bail!(
                 "got http status code '{}' with following msg:\n {}",
                 status_code,
-                String::from_utf8_lossy(body.bytes())
+                String::from_utf8_lossy(body.chunk())
             )
         } else {
             Ok(serde_json::from_reader(body.reader())?)
