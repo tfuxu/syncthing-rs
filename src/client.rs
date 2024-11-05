@@ -2,7 +2,7 @@ use anyhow::bail;
 use http::header::HeaderValue;
 use http::request::Request;
 use http::uri::{Authority, Parts as UriParts, PathAndQuery, Scheme, Uri};
-use hyper::body::Buf;
+use hyper::body::{Buf, HttpBody};
 use hyper::client::HttpConnector;
 use hyper::{Client as HyperClient, Method};
 use serde::de::DeserializeOwned as Deserialize;
@@ -87,7 +87,7 @@ impl Client {
 
         let resp = self.client.request(request).await?;
         let status_code = resp.status().as_u16();
-        let body = hyper::body::aggregate(resp).await?;
+        let body = resp.collect().await?.aggregate();
 
         if status_code < 200 || status_code > 299 {
             bail!(
